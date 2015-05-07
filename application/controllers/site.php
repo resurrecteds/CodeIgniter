@@ -2,9 +2,14 @@
 	class Site extends CI_Controller {
 		function index() {
 			$t = new testExtension2();
-			$t->getVars(); 
+			var_dump($t->getVars());
 //			var_dump(get_class_vars('test'));
-			$t->getVisibleVars();
+			var_dump($t->getVisibleVars());
+			var_dump($t->getPrivateVars());
+			
+			// adding the method getVisibleVars is the same as calling the method
+			// get_class_vars with the class name
+			var_dump(get_class_vars(get_class($t)));
 		}
 		
 		function index1() {
@@ -44,6 +49,10 @@
 //			var_dump(array_merge($superVars, $visibleVars));
 			return array_merge($superVars, $visibleVars);
 		}
+		
+		public function getVisibleVars() {
+			return get_class_vars(__CLASS__);
+		}
 	}
 	class testExtension2 extends testExtension1 {
 		public $tt1 = 44;
@@ -52,11 +61,15 @@
 		
 //		@Override
 		public function getVars() {
-			var_dump(array_merge(parent::getVars(), get_class_vars(__CLASS__)));
+			return array_merge(parent::getVars(), get_class_vars(__CLASS__));
 		}
 		
 		public function getVisibleVars() {
-			var_dump(get_class_vars(__CLASS__));
+			return get_class_vars(__CLASS__);
+		}
+		
+		public function getPrivateVars() {
+			return array_diff($this->getVars(), $this->getVisibleVars());
 		}
 	}
 ?>
