@@ -2,14 +2,27 @@
 	class Site extends CI_Controller {
 		function index() {
 			$t = new testExtension2();
+			
+//			Implement getVars in every method of each class to get all the vars
 			var_dump($t->getVars());
-//			var_dump(get_class_vars('test'));
-			var_dump($t->getVisibleVars());
+			
+//			only implement getPublicAndProtectedVars in the bottom of the inheritance tree to get the class'
+//			visible vars
+			var_dump($t->getPublicAndProtectedVars());
+			
+//			call get_class_vars on the class of the object to get only the public vars 
+			var_dump(get_class_vars(get_class($t)));
+			
+			// not working exactly - removes the private of the bottom class
 			var_dump($t->getPrivateVars());
 			
-			// adding the method getVisibleVars is the same as calling the method
-			// get_class_vars with the class name
-			var_dump(get_class_vars(get_class($t)));
+			$reflect = new ReflectionClass($t);
+			$props = $reflect->getProperties(ReflectionProperty::IS_PRIVATE | ReflectionProperty::IS_PROTECTED 
+		| ReflectionProperty::IS_PUBLIC);
+			var_dump($props);
+			foreach ($props as $prop) {
+    			print $prop->getName() . "\n";
+			}
 		}
 		
 		function index1() {
@@ -18,7 +31,7 @@
 			$this->load->view('home', $data);
 		}
 		
-		// video 1 moethod
+		// video 1 method
 		function index_ex1() {
 			echo 'Hello jenya';
 			$this->load->model('SiteModel');
@@ -33,7 +46,6 @@
 		private $c = 33;
 		
 		public function getVars() {
-//			var_dump(get_class_vars(__CLASS__));
 			return get_class_vars(__CLASS__);	
 		} 
 	}
@@ -46,14 +58,14 @@
 		public function getVars() {
 			$superVars = parent::getVars();
 			$visibleVars = get_class_vars(__CLASS__);
-//			var_dump(array_merge($superVars, $visibleVars));
 			return array_merge($superVars, $visibleVars);
 		}
 		
-		public function getVisibleVars() {
-			return get_class_vars(__CLASS__);
-		}
+//		public function getPublicAndProtectedVars() {
+//			return get_class_vars(__CLASS__);
+//		}
 	}
+	
 	class testExtension2 extends testExtension1 {
 		public $tt1 = 44;
 		protected $tt2 = 55;
@@ -64,12 +76,15 @@
 			return array_merge(parent::getVars(), get_class_vars(__CLASS__));
 		}
 		
-		public function getVisibleVars() {
+		
+		public function getPublicAndProtectedVars() {
 			return get_class_vars(__CLASS__);
 		}
 		
 		public function getPrivateVars() {
-			return array_diff($this->getVars(), $this->getVisibleVars());
+			var_dump($this->getVars());
+			var_dump($this->getPublicAndProtectedVars());
+			return array_diff($this->getVars(), $this->getPublicAndProtectedVars());
 		}
 	}
 ?>
