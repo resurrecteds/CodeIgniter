@@ -1,6 +1,6 @@
 <?php
 	class Site extends CI_Controller {
-		function index() {
+		function indexFinal() {
 			$t = new testExtension2();
 			
 //			Implement getVars in every method of each class to get all the vars
@@ -23,6 +23,11 @@
 			foreach ($props as $prop) {
     			print $prop->getName() . "\n";
 			}
+		}
+		
+		function foo($a, $b, $c) {
+			return 1 + foo(1, 2, 3);
+			
 		}
 		
 		function index1() {
